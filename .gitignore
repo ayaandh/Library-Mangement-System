@@ -1,0 +1,11 @@
+# Editor temporary and swap files
+.*.swp
+.*.un~
+*~
+
+# Compiled binaries/executables (optional but highly recommended for C++)
+*.exe
+*.out
+*.o
+*.obj
+
