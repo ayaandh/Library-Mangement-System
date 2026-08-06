@@ -5,205 +5,327 @@
 #include <algorithm>
 #include <cstdlib>
 
-// namespaces
-
 using std::cin;
 using std::cout;
+using std::string;
+using std::vector;
 
-//variables
+// Variables
 
-std::vector<std::string> books = {}; 
-std::string bookname;
-bool bookadded = false; 
-std::string name;
-std::string password;
-std::string log_name;
-std::string log_password; 
+vector<string> books;
+
+string bookname;
+string name;
+string password;
+
+string log_name;
+string log_password;
+
+string return_book_name;
+string renew_book_name;
+
 int opt;
-bool bookremoved;
-std::string return_book_name;
-bool renewing;
-std::string renew_book_name;
 int tries = 0;
-bool cservice;
 
-//functions
+
+// Functions
 
 void InputChecker();
 void book_functions();
 void homepage();
 void login();
 void signup();
-void return_func();
 void StartupFunctions();
 void CustomerSupport();
+void ViewBooks();
 
-void InputChecker() {
-    cin >> opt; 
-    if (opt == 1) {
-        bookadded = true;
-        bookremoved = false;
-        renewing = false;
-        cservice = false;
-        book_functions();
-    } 
-    else if (opt == 2) {
-        bookremoved = true;
-        bookadded = false;
-        renewing = false;
-        cservice = false;
+
+// Menu Input
+
+void InputChecker()
+{
+    cin >> opt;
+    cin.ignore();
+
+    if (opt == 1)
+    {
         book_functions();
     }
-    else if (opt == 3) {
-        bookadded = false;
-        bookremoved = false;
-        renewing = true;
-        cservice = false;
-        book_functions();
-    }
-    else if (opt == 4) { 
-        cout << "Exited Program Successfully\n";
-        std::quick_exit(0);
-    }
-    
-    else if (opt == 4) {
-        cservice = true;
-        book_functions();
-    }
-}
 
-void homepage() {
-    cout << "\n Select an option to start (1-4)\n" << std::endl;
-    cout << "1. Borrow Book" << std::endl;
-    cout << "2. Return Book" << std::endl;
-    cout << "3. Renew Book" << std::endl;
-    cout << "4. Exit" << std::endl;
-    cout << "5. Cusotmer Support" <<std::endl;
-    InputChecker(); 
-}
+    else if (opt == 2)
+    {
+        return_book_name = "";
+        cout << "Which book do you want to return?: ";
 
-void signup() {
-    cout << "===== Sign In =====";
-    cout << "Enter your name: ";
-    cin >> name;
-    cout << "\nChoose a password: ";
-    cin >> password;
-    cout << "\nWelcome " << name << ", you are now a member of this Library\n" << std::endl;
-    
-    std::ofstream file("user_data.txt"); 
-    if (file.is_open()) {
-        file << name << " " << password << "\n"; 
-        file.close();
-    }
-    login();
-}    
+        getline(cin, return_book_name);
 
-void login() {
-    cout << "Enter your Name: ";
-    cin >> log_name;
-    cout << "\nEnter your password: ";
-    cin >> log_password;
-    
-    std::ifstream file("user_data.txt"); 
-    if (file.is_open()) {
-        file >> name >> password; 
-        file.close();
-    }
-    
-    if (log_name == name && log_password == password) {
-        std::cout << "\nWelcome to the library!\n" << std::endl;
+        auto book = std::find(books.begin(), books.end(), return_book_name);
+
+        if (book != books.end())
+        {
+            books.erase(book);
+            cout << "Book returned successfully!\n";
+        }
+        else
+        {
+            cout << "You never borrowed this book.\n";
+        }
+
         homepage();
     }
-    else {
-        tries++;
-        if (tries < 5) {    
-            cout << "\nWrong username or password. Please try again later\n" << std::endl;
-            login(); 
+
+    else if (opt == 3)
+    {
+        cout << "Enter book name to renew: ";
+        getline(cin, renew_book_name);
+
+        auto book = std::find(books.begin(), books.end(), renew_book_name);
+
+        if (book != books.end())
+        {
+            cout << "Book renewed successfully!\n";
         }
-        else {
-            std::cout << "Too Many Tries, Session Locked.";
-            std::quick_exit(0);
+        else
+        {
+            cout << "You never borrowed this book.\n";
         }
+
+        homepage();
+    }
+
+    else if (opt == 4)
+    {
+        ViewBooks();
+        homepage();
+    }
+
+    else if (opt == 5)
+    {
+        CustomerSupport();
+        homepage();
+    }
+
+    else if (opt == 6)
+    {
+        cout << "Exited Program Successfully\n";
+        exit(0);
+    }
+
+    else
+    {
+        cout << "Invalid option.\n";
+        homepage();
     }
 }
 
-void return_func() {
+
+// Homepage
+
+void homepage()
+{
+    cout << "\n==============================\n";
+    cout << " Library Management System\n";
+    cout << "==============================\n\n";
+
+    cout << "1. Borrow Book\n";
+    cout << "2. Return Book\n";
+    cout << "3. Renew Book\n";
+    cout << "4. View Borrowed Books\n";
+    cout << "5. Customer Support\n";
+    cout << "6. Exit\n";
+
+    cout << "\nChoose option: ";
+
+    InputChecker();
+}
+
+
+// Signup
+
+void signup()
+{
+    cout << "\n===== Sign Up =====\n";
+
+    cout << "Enter your name: ";
+    getline(cin, name);
+
+    cout << "Choose a password: ";
+    getline(cin, password);
+
+
+    std::ofstream file("user_data.txt", std::ios::app);
+
+    if(file.is_open())
+    {
+        file << name << " " << password << "\n";
+        file.close();
+    }
+
+
+    cout << "\nWelcome " << name 
+         << ", you are now a library member!\n\n";
+
+
+    login();
+}
+
+
+// Login
+
+void login()
+{
+    while(tries < 5)
+    {
+        cout << "Enter your name: ";
+        getline(cin, log_name);
+
+        cout << "Enter your password: ";
+        getline(cin, log_password);
+
+
+        std::ifstream file("user_data.txt");
+
+
+        string saved_name;
+        string saved_password;
+
+        bool found = false;
+
+
+        while(file >> saved_name >> saved_password)
+        {
+            if(log_name == saved_name &&
+               log_password == saved_password)
+            {
+                found = true;
+                break;
+            }
+        }
+
+
+        file.close();
+
+
+        if(found)
+        {
+            cout << "\nLogin Successful!\n";
+            homepage();
+            return;
+        }
+
+        else
+        {
+            tries++;
+            cout << "\nWrong username or password.\n";
+            cout << "Attempts left: "
+                 << 5 - tries << "\n\n";
+        }
+    }
+
+
+    cout << "Too many failed attempts. Session locked.\n";
+    exit(0);
+}
+
+
+// Borrow / Renew
+
+void book_functions()
+{
+    cout << "Enter the name of the book to borrow: ";
+
+    getline(cin, bookname);
+
+
+    books.push_back(bookname);
+
+
+    cout << "Book borrowed successfully!\n";
+
     homepage();
 }
 
-void book_functions() {
-    if (bookadded && !bookremoved && !renewing) {
-        cout << "Enter the name of the book to borrow: ";
-        cin >> bookname;
-        books.push_back(bookname); 
-        cout << "Book added to your borrowed list!\n" << std::endl; 
-        return_func();
-    }    
-    else if (bookremoved && !bookadded && !renewing) {
-        cout << "Which book do you want to return?: ";
-        cin >> return_book_name;
-        auto book = std::find(books.begin(), books.end(), return_book_name);
-        if (book != books.end()) {
-            books.erase(book);
-            cout << "Book returned successfully!\n" << std::endl;
-        }
-        else {
-            cout << "You never borrowed this book.\n" << std::endl;
-        }
-        return_func();
-    }
-    else if (renewing) {    
-        cout << "Enter the name of the book to renew: ";
-        cin >> renew_book_name;
-        auto book = std::find(books.begin(), books.end(), renew_book_name);
-        if (book != books.end()) {
-            books.erase(book);
-            books.push_back(renew_book_name);
-            cout << "Book renewed successfully!\n" << std::endl;
-        }
-        else {
-            cout << "You never borrowed this book.\n" << std::endl;
-        }
-        return_func();
+
+// View Books
+
+void ViewBooks()
+{
+    cout << "\n===== Borrowed Books =====\n";
+
+
+    if(books.empty())
+    {
+        cout << "No books borrowed.\n";
     }
 
-    else if (cservice == true) {
-        CustomerService():
+    else
+    {
+        for(int i = 0; i < books.size(); i++)
+        {
+            cout << i + 1 << ". "
+                 << books[i] << "\n";
+        }
     }
 
+    cout << "\n";
 }
 
-void StartupFunctions() {
-    int sign_opt;
-    cout << "Select an Option (1-2)\n" << std::endl;
-    cout << "1. Log In" << std::endl;
-    cout << "2. Sign up\n" << std::endl;
-    cin >> sign_opt;
-    
-    if (sign_opt == 1) {
-        login();
-    }
-    else if (sign_opt == 2) {
-        signup();
-    }   
-    else {
-        cout << "Invalid Option. Select an Option from 1-2\n" << std::endl;
-    }
-}
 
 // Customer Support
 
-void customer_support_intro() {
-	std::cout << "Thank you for contacting customer support! you will be contacted soon";
+void CustomerSupport()
+{
+    cout << "\n===== Customer Support =====\n";
+    cout << "Thank you for contacting support.\n";
+    cout << "A librarian will contact you soon.\n\n";
 }
 
-void CustomerSupport() {
-	customer_support_intro();
+
+// Startup
+
+void StartupFunctions()
+{
+    int sign_opt;
+
+
+    cout << "\n1. Login\n";
+    cout << "2. Sign Up\n";
+
+    cout << "Choose option: ";
+
+    cin >> sign_opt;
+    cin.ignore();
+
+
+    if(sign_opt == 1)
+    {
+        login();
+    }
+
+    else if(sign_opt == 2)
+    {
+        signup();
+    }
+
+    else
+    {
+        cout << "Invalid option.\n";
+        StartupFunctions();
+    }
 }
 
-int main() {
-    cout << "================== Library Management System ==================\n" << std::endl;
+
+// Main
+
+int main()
+{
+    cout << "=================================================\n";
+    cout << "       Library Management System\n";
+    cout << "=================================================\n";
+
+
     StartupFunctions();
-    cout << "===============================================================\n" << std::endl;  
+
+
     return 0;
 }
