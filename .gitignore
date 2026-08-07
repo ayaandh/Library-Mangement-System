@@ -1,11 +1,21 @@
-# Editor temporary and swap files
-.*.swp
-.*.un~
-*~
+# Visual Studio
+.vs/
 
-# Compiled binaries/executables (optional but highly recommended for C++)
+# Build output
 *.exe
-*.out
-*.o
 *.obj
+*.pdb
+*.ilk
+*.idb
+*.ipch
+Debug/
+Release/
+x64/
+x86/
 
+# CMake
+CMakeFiles/
+CMakeCache.txt
+
+# VS Code
+.vscode/
